@@ -100,17 +100,15 @@ pub fn cache_map_data(map: &Map) -> Option<MapMetadata> {
 
     // now we make the map data
     let cached_map = MapMetadata {
-        key: u32::from_str_radix(&map.id, 16).unwrap(),
+        key: u32::from_str_radix(&map.id, 16).unwrap_or_default(),
         hash: map.versions[0].hash.clone(),
         song_name: map.metadata.song_name.clone(),
         song_sub_name: map.metadata.song_sub_name.clone(),
         song_author_name: map.metadata.song_author_name.clone(),
         level_author_name: map.metadata.level_author_name.clone(),
-        duration: u32::try_from(map.metadata.duration).ok().unwrap(),
-        uploaded: u32::try_from(map.last_published_at?.timestamp())
-            .ok()
-            .unwrap(),
-        last_updated: u32::try_from(map.updated_at?.timestamp()).ok().unwrap(),
+        duration: u32::try_from(map.metadata.duration).unwrap_or_default(),
+        uploaded: u32::try_from(map.last_published_at?.timestamp()).unwrap_or_default(),
+        last_updated: u32::try_from(map.updated_at?.timestamp()).unwrap_or_default(),
         mods: generate_protobuf_map_mods(&map.versions[0]),
         curator_name: generate_protobuf_curator(map),
         votes: generate_protobuf_votes(map.stats.upvotes, map.stats.downvotes),

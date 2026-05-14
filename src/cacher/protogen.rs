@@ -50,10 +50,10 @@ pub(crate) fn generate_protobuf_diffs(map_version: &MapVersion) -> Vec<Difficult
         diffs.push(Difficulty {
             njs: diff.njs as f32,
             notes: u32::try_from(diff.notes).unwrap_or(0),
-            characteristic_name: diff.characteristic.name().to_string(),
+            characteristic_name: diff.characteristic.to_string(),
             difficulty_name: diff.difficulty.clone(),
             mods: generate_protobuf_diff_mods(diff),
-            environment_name: diff.environment.as_ref().unwrap().name().to_string(),
+            environment_name: diff.environment.as_ref().unwrap().to_string(),
             ranked: generate_protobuf_ranked_values(diff),
         });
     }
