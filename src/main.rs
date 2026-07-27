@@ -1,12 +1,5 @@
 use beatsaver_api::client::BeatSaverClient;
-
-use crate::cacher::{init_cache, write_cache};
-
-mod cacher;
-
-pub(crate) mod mapdata {
-    include!(concat!(env!("OUT_DIR"), "\\cached_beat_saver_data.rs"));
-}
+use drm_beatsaver_cacher::cacher::{init_cache, write_cache};
 
 #[tokio::main]
 async fn main() {
