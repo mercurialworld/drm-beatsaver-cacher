@@ -22,7 +22,7 @@ use tokio::time::sleep;
 
 use crate::cacher::protogen::{
     generate_protobuf_curator, generate_protobuf_diffs, generate_protobuf_map_mods,
-    generate_protobuf_votes,
+    generate_protobuf_tags, generate_protobuf_votes,
 };
 use crate::mapdata::{MapList, MapMetadata};
 
@@ -113,6 +113,7 @@ pub fn cache_map_data(map: &Map) -> Option<MapMetadata> {
         curator_name: generate_protobuf_curator(map),
         votes: generate_protobuf_votes(map.stats.upvotes, map.stats.downvotes),
         difficulties: generate_protobuf_diffs(&map.versions[0]),
+        tags: generate_protobuf_tags(map),
     };
 
     Some(cached_map)

@@ -12,6 +12,7 @@ use crate::common::focus;
 mod common;
 
 #[rstest]
+#[test]
 fn it_caches_focus(focus: MapMetadata) {
     // https://beatsaver.com/maps/4b6f1
     let focus_but_drm = focus;
@@ -45,6 +46,7 @@ async fn it_writes(focus: MapMetadata) {
 }
 
 #[rstest]
+#[test]
 fn it_reads(focus: MapMetadata) {
     let focus_but_drm = focus;
 
