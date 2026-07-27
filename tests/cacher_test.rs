@@ -39,7 +39,9 @@ async fn it_writes(focus: MapMetadata) {
 
     maps.map_metadata.insert("4b6f1".into(), focus_but_drm);
 
-    write_cache(&maps, "testMapData.proto.gz").await.unwrap();
+    write_cache(maps.encode_to_vec(), "testMapData.proto.gz")
+        .await
+        .unwrap();
 }
 
 #[rstest]

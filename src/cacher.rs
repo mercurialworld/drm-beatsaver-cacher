@@ -17,7 +17,6 @@ use beatsaver_api::{
 };
 use flate2::{Compression, write::GzEncoder};
 use log::{debug, error, info};
-use prost::Message;
 use std::io::prelude::*;
 use tokio::time::sleep;
 
@@ -188,12 +187,25 @@ pub async fn init_cache(client: &BeatSaverClient) -> MapList {
     map_list
 }
 
-/// Writes the cache to a compressed Protobuf file.
-pub async fn write_cache(map_list: &MapList, path: &str) -> Result<(), Error> {
+/// Writes the cache (as bytes) to an uncompressed Protobuf file.
+pub async fn write_cache_uncompressed(map_list_bytes: Vec<u8>, path: &str) -> Result<(), Error> {
+    match fs::write(path, map_list_bytes) {
+        Ok(_) => info!("Saved uncompressed proto to {}", path),
+        Err(e) => {
+            error!("{:?}", e);
+            return Err(e);
+        }
+    }
+
+    Ok(())
+}
+
+/// Writes the cache (as bytes) to a compressed Protobuf file.
+pub async fn write_cache(map_list_bytes: Vec<u8>, path: &str) -> Result<(), Error> {
     let buf = Vec::new();
 
     let mut gz = GzEncoder::new(buf, Compression::default());
-    let _res = gz.write_all(&map_list.encode_to_vec());
+    let _res = gz.write_all(&map_list_bytes);
 
     let compressed = gz.finish().unwrap();
 
