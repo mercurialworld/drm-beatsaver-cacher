@@ -16,5 +16,5 @@ async fn main() {
 
     let maps = init_cache(&beatsaver_api).await;
 
-    write_cache(&maps, "mapData.proto.gz").await;
+    let _write_res = write_cache(&maps, "mapData.proto.gz").await;
 }

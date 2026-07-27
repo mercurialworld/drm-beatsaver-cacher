@@ -3,6 +3,7 @@ pub mod protogen;
 use std::{
     collections::HashMap,
     fs::{self},
+    io::Error,
     time::Duration,
 };
 
@@ -165,6 +166,7 @@ pub async fn init_cache(client: &BeatSaverClient) -> MapList {
                     }
 
                     sleep(Duration::from_millis(100)).await;
+                    break;
                 }
             }
             Err(err) => match err {
@@ -188,13 +190,12 @@ pub async fn init_cache(client: &BeatSaverClient) -> MapList {
     map_list
 }
 
-// [TODO] better return type
-// [TODO] validation on this
-pub async fn write_cache(map_list: &MapList, path: &str) -> bool {
+/// Writes the cache to a compressed Protobuf file.
+pub async fn write_cache(map_list: &MapList, path: &str) -> Result<(), Error> {
     let buf = Vec::new();
 
     let mut gz = GzEncoder::new(buf, Compression::default());
-    let _ = gz.write_all(&map_list.encode_to_vec());
+    let _res = gz.write_all(&map_list.encode_to_vec());
 
     let compressed = gz.finish().unwrap();
 
@@ -204,9 +205,9 @@ pub async fn write_cache(map_list: &MapList, path: &str) -> bool {
         }
         Err(e) => {
             error!("{:?}", e);
-            return false;
+            return Err(e);
         }
     }
 
-    true
+    Ok(())
 }

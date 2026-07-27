@@ -63,8 +63,8 @@ pub(crate) fn generate_protobuf_diffs(map_version: &MapVersion) -> Vec<Difficult
 
 /// Converts the curator field on BeatSaver to a DumbRequestManager-readable format, if it exists.
 pub(crate) fn generate_protobuf_curator(map: &Map) -> Option<String> {
-    if map.curator.is_some() {
-        return Some(map.curator.as_ref().unwrap().name.clone());
+    if let Some(curator) = &map.curator {
+        return Some(curator.name.clone());
     }
 
     None
