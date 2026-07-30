@@ -8,6 +8,7 @@ message MapList {
 message Votes {
 	required uint32 up = 1;
 	required uint32 down = 2;
+	required double score = 3;
 }
 
 message RankedValue {
@@ -44,4 +45,5 @@ message MapMetadata {
 	optional string curatorName = 11;
 	required Votes votes = 12;
 	repeated Difficulty difficulties = 13;
+	repeated string tags = 14;
 }

@@ -1,11 +1,32 @@
+use std::collections::HashMap;
+
 use beatsaver_api::models::map::MapDetail;
-use drm_beatsaver_cacher::{cacher::cache_map_data, mapdata::MapMetadata};
+use drm_beatsaver_cacher::{
+    cacher::{cache_map_data, write_cache},
+    mapdata::{MapList, MapMetadata},
+};
+use prost::Message;
 use rstest::fixture;
 
+#[allow(dead_code)]
+// this is literally being used idk why clippy is complaining???
+pub(crate) async fn write_focus() -> usize {
+    let focus_but_drm = focus();
+
+    let mut maps: MapList = MapList {
+        map_metadata: HashMap::new(),
+    };
+
+    maps.map_metadata.insert("4b6f1".into(), focus_but_drm);
+
+    write_cache(maps.encode_to_vec(), "testMapData.proto.gz")
+        .await
+        .unwrap()
+}
+
 #[fixture]
-pub(crate) fn focus() -> MapMetadata {
-    let map: MapDetail = serde_json::from_str(
-        r#"{
+pub(crate) fn focus_json() -> String {
+    r#"{
   "id": "4b6f1",
   "name": "Hearts2Hearts - FOCUS",
   "description": "This song is soo damn good!\r\n\r\nStream the MV: https://youtu.be/Ur7aK4FvK-U\r\nKpop Beat Saber Discord: https://discord.gg/c9uHGYP\r\n\r\nThanks to ttv@earblind69 for the testplay!",
@@ -199,8 +220,12 @@ pub(crate) fn focus() -> MapMetadata {
   "declaredAi": "None",
   "blRanked": false,
   "blQualified": false
-}"#,
-    ).unwrap();
+}"#.into()
+}
+
+#[fixture]
+pub(crate) fn focus() -> MapMetadata {
+    let map: MapDetail = serde_json::from_str(&focus_json()).unwrap();
 
     cache_map_data(&map).unwrap()
 }

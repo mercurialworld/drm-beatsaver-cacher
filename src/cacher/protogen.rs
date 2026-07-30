@@ -71,9 +71,15 @@ pub(crate) fn generate_protobuf_curator(map: &Map) -> Option<String> {
 }
 
 /// Converts BeatSaver map upvotes/downvotes to a DumbRequestManager-readable format.
-pub(crate) fn generate_protobuf_votes(up: i32, down: i32) -> Votes {
+pub(crate) fn generate_protobuf_votes(up: i32, down: i32, score: f64) -> Votes {
     Votes {
         up: u32::try_from(up).unwrap_or(0),
         down: u32::try_from(down).unwrap_or(0),
+        score,
     }
+}
+
+/// Converts BeatSaver tags to an array of strings.
+pub(crate) fn generate_protobuf_tags(map: &Map) -> Vec<String> {
+    map.tags.iter().map(|tag| tag.to_string()).collect()
 }
