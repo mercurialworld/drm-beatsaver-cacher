@@ -1,6 +1,26 @@
+use std::collections::HashMap;
+
 use beatsaver_api::models::map::MapDetail;
-use drm_beatsaver_cacher::{cacher::cache_map_data, mapdata::MapMetadata};
+use drm_beatsaver_cacher::{
+    cacher::{cache_map_data, write_cache},
+    mapdata::{MapList, MapMetadata},
+};
+use prost::Message;
 use rstest::fixture;
+
+pub(crate) async fn write_focus() -> usize {
+    let focus_but_drm = focus();
+
+    let mut maps: MapList = MapList {
+        map_metadata: HashMap::new(),
+    };
+
+    maps.map_metadata.insert("4b6f1".into(), focus_but_drm);
+
+    write_cache(maps.encode_to_vec(), "testMapData.proto.gz")
+        .await
+        .unwrap()
+}
 
 #[fixture]
 pub(crate) fn focus() -> MapMetadata {

@@ -1,13 +1,13 @@
 use std::io::Read;
-use std::{collections::HashMap, fs::File, path::Path};
+use std::{fs::File, path::Path};
 
+use drm_beatsaver_cacher::mapdata::MapList;
 use drm_beatsaver_cacher::mapdata::MapMetadata;
-use drm_beatsaver_cacher::{cacher::write_cache, mapdata::MapList};
 use flate2::read::GzDecoder;
 use prost::Message;
 use rstest::*;
 
-use crate::common::focus;
+use crate::common::{focus, write_focus};
 
 mod common;
 
@@ -29,26 +29,17 @@ fn it_caches_focus(focus: MapMetadata) {
     assert_ne!(focus_but_drm.uploaded, focus_but_drm.last_updated);
 }
 
-#[rstest]
 #[tokio::test]
-async fn it_writes(focus: MapMetadata) {
-    let focus_but_drm = focus;
-
-    let mut maps: MapList = MapList {
-        map_metadata: HashMap::new(),
-    };
-
-    maps.map_metadata.insert("4b6f1".into(), focus_but_drm);
-
-    write_cache(maps.encode_to_vec(), "testMapData.proto.gz")
-        .await
-        .unwrap();
+async fn it_writes() {
+    let _ = write_focus().await;
 }
 
 #[rstest]
-#[test]
-fn it_reads(focus: MapMetadata) {
+#[tokio::test]
+async fn it_reads(focus: MapMetadata) {
     let focus_but_drm = focus;
+
+    let written_size = write_focus().await;
 
     let path = Path::new("testMapData.proto.gz");
     let display = path.display();
@@ -65,6 +56,8 @@ fn it_reads(focus: MapMetadata) {
         Err(why) => panic!("couldn't read {}: {}", display, why),
         Ok(s) => s,
     };
+
+    assert_eq!(written_size, size);
 
     // Decompress file, then write as bytes
     let mut d = GzDecoder::new(&file_bytes[..size]);

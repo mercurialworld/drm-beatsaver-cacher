@@ -15,6 +15,7 @@ use beatsaver_api::{
         map::{Map, MapDetail, MapVersion},
     },
 };
+use chrono::{DateTime, Utc};
 use flate2::{Compression, write::GzEncoder};
 use log::{debug, error, info};
 use std::io::prelude::*;
@@ -111,7 +112,7 @@ pub fn cache_map_data(map: &Map) -> Option<MapMetadata> {
         last_updated: u32::try_from(map.updated_at?.timestamp()).unwrap_or_default(),
         mods: generate_protobuf_map_mods(&map.versions[0]),
         curator_name: generate_protobuf_curator(map),
-        votes: generate_protobuf_votes(map.stats.upvotes, map.stats.downvotes),
+        votes: generate_protobuf_votes(map.stats.upvotes, map.stats.downvotes, map.stats.score),
         difficulties: generate_protobuf_diffs(&map.versions[0]),
         tags: generate_protobuf_tags(map),
     };
@@ -119,7 +120,7 @@ pub fn cache_map_data(map: &Map) -> Option<MapMetadata> {
     Some(cached_map)
 }
 
-pub async fn init_cache(client: &BeatSaverClient) -> MapList {
+pub async fn init_cache(client: &BeatSaverClient, start_date: Option<DateTime<Utc>>) -> MapList {
     let mut caching = true;
     let mut current_time = chrono::Utc::now();
     let mut last_map: Option<MapDetail> = None;
@@ -129,11 +130,17 @@ pub async fn init_cache(client: &BeatSaverClient) -> MapList {
     };
 
     while caching {
-        let params = BeatSaverMapSearchBuilder::new()
+        let mut param_builder = BeatSaverMapSearchBuilder::new()
             .before(current_time)
             .page_size(100)
-            .automapper(false)
-            .build();
+            .automapper(false);
+
+        if let Some(s) = start_date {
+            param_builder = param_builder.after(s);
+        }
+
+        let params = param_builder.build();
+        debug!("Params: {}", params);
 
         let res = client.latest(&params).await;
 
@@ -164,7 +171,6 @@ pub async fn init_cache(client: &BeatSaverClient) -> MapList {
                     }
 
                     sleep(Duration::from_millis(100)).await;
-                    break;
                 }
             }
             Err(err) => match err {
@@ -202,13 +208,14 @@ pub async fn write_cache_uncompressed(map_list_bytes: Vec<u8>, path: &str) -> Re
 }
 
 /// Writes the cache (as bytes) to a compressed Protobuf file.
-pub async fn write_cache(map_list_bytes: Vec<u8>, path: &str) -> Result<(), Error> {
+pub async fn write_cache(map_list_bytes: Vec<u8>, path: &str) -> Result<usize, Error> {
     let buf = Vec::new();
 
     let mut gz = GzEncoder::new(buf, Compression::default());
     let _res = gz.write_all(&map_list_bytes);
 
     let compressed = gz.finish().unwrap();
+    let size = compressed.len();
 
     match fs::write(path, compressed) {
         Ok(_) => {
@@ -220,5 +227,5 @@ pub async fn write_cache(map_list_bytes: Vec<u8>, path: &str) -> Result<(), Erro
         }
     }
 
-    Ok(())
+    Ok(size)
 }

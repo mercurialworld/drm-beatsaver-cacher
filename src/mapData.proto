@@ -8,6 +8,7 @@ message MapList {
 message Votes {
 	required uint32 up = 1;
 	required uint32 down = 2;
+	required double score = 3;
 }
 
 message RankedValue {
