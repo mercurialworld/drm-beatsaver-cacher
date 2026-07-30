@@ -66,7 +66,7 @@ pub async fn map_socket(map_lock: Arc<RwLock<MapList>>, cache_path: &str) {
                             }
                             Err(e) => {
                                 if m.starts_with("[ping") {
-                                    debug!("ping");
+                                    // debug!("ping");
                                 } else {
                                     error!("Unable to deserialize message: {}", e);
                                 }

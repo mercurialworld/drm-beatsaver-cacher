@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use futures::StreamExt;
-use log::{debug, info, warn};
+use log::{debug, error, info, warn};
 use serde::Deserialize;
 use tokio::sync::RwLock;
 use tokio_tungstenite::connect_async;
@@ -64,9 +64,11 @@ pub async fn vote_socket(map_lock: Arc<RwLock<MapList>>) {
                                     }
                                 }
                             },
-                            Err(_) => {
+                            Err(e) => {
                                 if m.starts_with("[ping") {
-                                    debug!("ping");
+                                    // debug!("ping");
+                                } else {
+                                    error!("Unable to deserialize message: {}", e);
                                 }
                             }
                         }
