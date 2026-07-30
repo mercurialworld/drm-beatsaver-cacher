@@ -1,2 +1,4 @@
 /target
 *.proto.gz
+*.proto
+config.json
