@@ -81,5 +81,5 @@ pub(crate) fn generate_protobuf_votes(up: i32, down: i32, score: f64) -> Votes {
 
 /// Converts BeatSaver tags to an array of strings.
 pub(crate) fn generate_protobuf_tags(map: &Map) -> Vec<String> {
-    map.tags.iter().map(|tag| tag.to_string()).collect()
+    map.tags.iter().map(|tag| tag.slug().into()).collect()
 }

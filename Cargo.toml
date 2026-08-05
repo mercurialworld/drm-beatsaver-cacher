@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 anyhow = "1.0.100"
 axum = { version = "0.8.9", features = ["macros"] }
-beatsaver-api = { git = "https://github.com/mercurialworld/beatsaver-api", version = "0.3.3" }
+beatsaver-api = { git = "https://github.com/mercurialworld/beatsaver-api", version = "0.3.4" }
 chrono = { version = "0.4.42", features = ["serde"] }
 config = "0.15.25"
 env_logger = "0.11.8"

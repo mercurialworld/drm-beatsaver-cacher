@@ -205,8 +205,8 @@ checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
 
 [[package]]
 name = "beatsaver-api"
-version = "0.3.3"
-source = "git+https://github.com/mercurialworld/beatsaver-api#2075e57a1d74fd2b5635aa20bce2a14653985e88"
+version = "0.3.4"
+source = "git+https://github.com/mercurialworld/beatsaver-api#2e84d84311cecec74e61b6cc9b55f261286955ed"
 dependencies = [
  "anyhow",
  "chrono",
