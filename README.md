@@ -12,8 +12,14 @@ Make sure you have `protoc` installed. Then, run:
 cargo build
 ```
 
+You should also have an environment set as follows: 
+
+```sh
+RUST_LOG="drm_beatsaver_cacher"
+```
+
 To test:
 
 ```sh
-cargo test --test cacher_test # add -- --show-output if you want the actual output
+cargo test # add -- --show-output if you want the actual output
 ```

@@ -9,7 +9,8 @@ use tokio::sync::RwLock;
 use tokio_tungstenite::connect_async;
 
 use crate::{
-    cacher::{cache_map_data, write_cache_uncompressed},
+    cacher::cache_map_data,
+    file::write_cache,
     mapdata::MapList,
     websocket::{BASE_WS_URL, RECONNECT_DELAY},
 };
@@ -47,11 +48,8 @@ pub async fn map_socket(map_lock: Arc<RwLock<MapList>>, cache_path: &str) {
                                         if let Some(cached_map) = cache_map_data(&msg) {
                                             maps.map_metadata.insert(msg.id, cached_map);
 
-                                            let _ = write_cache_uncompressed(
-                                                maps.encode_to_vec(),
-                                                cache_path,
-                                            )
-                                            .await;
+                                            let _ =
+                                                write_cache(maps.encode_to_vec(), cache_path).await;
                                         }
                                     }
                                     MapWebsocketMessage::MapDelete { msg } => {

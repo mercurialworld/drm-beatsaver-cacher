@@ -2,7 +2,8 @@ use std::collections::HashMap;
 
 use beatsaver_api::models::map::MapDetail;
 use drm_beatsaver_cacher::{
-    cacher::{cache_map_data, write_cache},
+    cacher::cache_map_data,
+    file::write_bytes,
     mapdata::{MapList, MapMetadata},
 };
 use prost::Message;
@@ -19,7 +20,7 @@ pub(crate) async fn write_focus() -> usize {
 
     maps.map_metadata.insert("4b6f1".into(), focus_but_drm);
 
-    write_cache(maps.encode_to_vec(), "testMapData.proto.gz")
+    write_bytes(maps.encode_to_vec(), "testMapData.proto")
         .await
         .unwrap()
 }

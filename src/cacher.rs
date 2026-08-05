@@ -1,11 +1,6 @@
 pub mod protogen;
 
-use std::{
-    collections::HashMap,
-    fs::{self},
-    io::Error,
-    time::Duration,
-};
+use std::{collections::HashMap, time::Duration};
 
 use beatsaver_api::{
     builders::BeatSaverMapSearchBuilder,
@@ -16,9 +11,7 @@ use beatsaver_api::{
     },
 };
 use chrono::{DateTime, Utc};
-use flate2::{Compression, write::GzEncoder};
 use log::{debug, error, info};
-use std::io::prelude::*;
 use tokio::time::sleep;
 
 use crate::cacher::protogen::{
@@ -192,40 +185,4 @@ pub async fn init_cache(client: &BeatSaverClient, start_date: Option<DateTime<Ut
     }
 
     map_list
-}
-
-/// Writes the cache (as bytes) to an uncompressed Protobuf file.
-pub async fn write_cache_uncompressed(map_list_bytes: Vec<u8>, path: &str) -> Result<(), Error> {
-    match fs::write(path, map_list_bytes) {
-        Ok(_) => info!("Saved uncompressed proto to {}", path),
-        Err(e) => {
-            error!("{:?}", e);
-            return Err(e);
-        }
-    }
-
-    Ok(())
-}
-
-/// Writes the cache (as bytes) to a compressed Protobuf file.
-pub async fn write_cache(map_list_bytes: Vec<u8>, path: &str) -> Result<usize, Error> {
-    let buf = Vec::new();
-
-    let mut gz = GzEncoder::new(buf, Compression::default());
-    let _res = gz.write_all(&map_list_bytes);
-
-    let compressed = gz.finish().unwrap();
-    let size = compressed.len();
-
-    match fs::write(path, compressed) {
-        Ok(_) => {
-            info!("Saved to {}", path);
-        }
-        Err(e) => {
-            error!("{:?}", e);
-            return Err(e);
-        }
-    }
-
-    Ok(size)
 }
