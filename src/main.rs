@@ -1,41 +1,29 @@
+use std::net::SocketAddr;
 use std::sync::Arc;
-use std::{fs::File, io::Read, path::Path};
 
+use axum::Router;
 use beatsaver_api::client::BeatSaverClient;
 use chrono::DateTime;
+use drm_beatsaver_cacher::file::{read_gzip, write_cache};
 use drm_beatsaver_cacher::{
-    cacher::{init_cache, write_cache_uncompressed},
+    cacher::init_cache,
     config::CacherConfig,
     mapdata::MapList,
     websocket::{mapactivity::map_socket, voteactivity::vote_socket},
 };
-use log::{error, info};
+use log::{debug, info};
 use prost::Message;
+use tokio::net::TcpListener;
 use tokio::{join, sync::RwLock};
+use tower_http::services::ServeFile;
+use tower_http::trace::TraceLayer;
 
-async fn load_cache(path: &str) -> Option<MapList> {
-    let p = Path::new(path);
+async fn serve(app: Router, port: u16) {
+    let addr = SocketAddr::from(([127, 0, 0, 1], port));
+    let listener = TcpListener::bind(addr).await.unwrap();
+    debug!("listening on {}", listener.local_addr().unwrap());
 
-    let mut file = match File::open(p) {
-        Ok(f) => f,
-        Err(e) => {
-            error!("Error opening {path}: {}", e);
-            return None;
-        }
-    };
-
-    let mut file_bytes: Vec<u8> = Vec::new();
-    let size = match file.read_to_end(&mut file_bytes) {
-        Ok(s) => s,
-        Err(e) => {
-            error!("Error reading {path}: {}", e);
-            return None;
-        }
-    };
-
-    let maps = MapList::decode(&file_bytes[..size]).unwrap();
-
-    Some(maps)
+    let _ = axum::serve(listener, app.layer(TraceLayer::new_for_http())).await;
 }
 
 #[tokio::main]
@@ -51,7 +39,7 @@ async fn main() {
         {
             let mut ms = maps.write().await;
 
-            if let Some(mut m) = load_cache(&cache_path).await {
+            if let Some(mut m) = read_gzip::<MapList>(&cache_path).await {
                 info!("Cache has been successfully loaded, updating it...");
 
                 // sort by date descending
@@ -77,12 +65,16 @@ async fn main() {
 
             info!("{} maps have been cached.", ms.map_metadata.len());
 
-            let _write_res =
-                write_cache_uncompressed((ms.encode_to_vec()).to_vec(), &cache_path).await;
+            let _write_res = write_cache((ms.encode_to_vec()).to_vec(), &cache_path).await;
         }
     }
 
+    // api
+    let app: Router = Router::new().route_service("/cache", ServeFile::new(&cache_path));
+
+    // webserver and sockets
     join!(
+        serve(app, 5000),
         map_socket(maps.clone(), &cache_path),
         vote_socket(maps.clone())
     );
