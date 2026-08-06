@@ -6,13 +6,19 @@ COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder 
+
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive \
+    apt-get install --no-install-recommends --assume-yes \
+      protobuf-compiler
+
 COPY --from=planner /app/recipe.json recipe.json
-RUN apt-get update && \
-    apt-get install protobuf-compiler -y
-# Build dependencies - this is the caching Docker layer!
 RUN cargo chef cook --release --recipe-path recipe.json
-# Build application
+
 COPY . .
+ENV PROTOC=/usr/bin/protoc
+RUN ls /usr/bin/pr*
+
 RUN cargo build
 RUN cargo build --release
 
