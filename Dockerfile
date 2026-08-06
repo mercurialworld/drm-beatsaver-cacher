@@ -13,6 +13,7 @@ RUN apt-get update && \
 RUN cargo chef cook --release --recipe-path recipe.json
 # Build application
 COPY . .
+RUN cargo build
 RUN cargo build --release
 
 # We do not need the Rust toolchain to run the binary!
