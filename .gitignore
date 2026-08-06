@@ -2,3 +2,4 @@
 *.proto.gz
 *.proto
 config.json
+node_modules/

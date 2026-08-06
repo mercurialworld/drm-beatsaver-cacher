@@ -1,0 +1,7 @@
+# prod overrides
+services:
+  api:
+    restart: unless-stopped
+    image: "${IMAGE}"
+    environment:
+      - RUST_LOG=drm_beatsaver_cacher
