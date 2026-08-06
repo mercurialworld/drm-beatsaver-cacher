@@ -1,6 +1,7 @@
 pub mod cacher;
 pub mod config;
 pub mod file;
+pub mod routes;
 pub mod websocket;
 
 pub mod mapdata {

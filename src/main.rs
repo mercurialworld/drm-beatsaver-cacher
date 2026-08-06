@@ -2,9 +2,11 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 
 use axum::Router;
+use axum::routing::get;
 use beatsaver_api::client::BeatSaverClient;
 use chrono::DateTime;
 use drm_beatsaver_cacher::file::{read_gzip, write_cache};
+use drm_beatsaver_cacher::routes::health;
 use drm_beatsaver_cacher::{
     cacher::init_cache,
     config::CacherConfig,
@@ -70,7 +72,9 @@ async fn main() {
     }
 
     // api
-    let app: Router = Router::new().route_service("/cache", ServeFile::new(&cache_path));
+    let app: Router = Router::new()
+        .route("/health", get(health))
+        .route_service("/cache", ServeFile::new(&cache_path));
 
     // webserver and sockets
     join!(
