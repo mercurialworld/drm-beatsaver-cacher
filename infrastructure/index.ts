@@ -1,5 +1,5 @@
 import * as cdk from "aws-cdk-lib";
-import { BeatSaverCacherStack } from "./stack";
+import { BeatSaverCacherStack } from "./stack.ts";
 
 const app = new cdk.App();
 new BeatSaverCacherStack(app, "BeatSaverCacherStack", {
