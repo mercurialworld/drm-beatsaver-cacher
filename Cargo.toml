@@ -1,6 +1,6 @@
 [package]
 name = "drm-beatsaver-cacher"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 
 [dependencies]
@@ -9,6 +9,7 @@ axum = { version = "0.8.9", features = ["macros"] }
 beatsaver-api = { git = "https://github.com/mercurialworld/beatsaver-api", version = "0.3.4" }
 chrono = { version = "0.4.42", features = ["serde"] }
 config = "0.15.25"
+dotenvy = "0.15.7"
 env_logger = "0.11.8"
 flate2 = "1.1.5"
 futures = "0.3.33"

@@ -1,3 +1,5 @@
+use std::env;
+use std::error::Error;
 use std::net::SocketAddr;
 use std::sync::Arc;
 
@@ -5,6 +7,8 @@ use axum::Router;
 use axum::routing::get;
 use beatsaver_api::client::BeatSaverClient;
 use chrono::DateTime;
+use config::ConfigError;
+use dotenvy::dotenv;
 use drm_beatsaver_cacher::file::{read_gzip, write_cache};
 use drm_beatsaver_cacher::routes::health;
 use drm_beatsaver_cacher::{
@@ -28,10 +32,35 @@ async fn serve(app: Router, port: u16) {
     let _ = axum::serve(listener, app.layer(TraceLayer::new_for_http())).await;
 }
 
+fn get_config() -> Result<CacherConfig, Box<dyn Error>> {
+    if let Ok(conf) = CacherConfig::new("config.json") {
+        return Ok(conf);
+    }
+
+    if dotenv().is_ok() {
+        let cache_file = match env::var("CACHE_FILE") {
+            Ok(v) => v,
+            Err(e) => panic!("{}", e),
+        };
+
+        let init_on_start = match env::var("INIT_CACHE_ON_START") {
+            Ok(v) => matches!(v.as_str(), "true" | "t" | "1"),
+            Err(_) => false,
+        };
+
+        return Ok(CacherConfig {
+            cache_file,
+            init_cache_on_start: init_on_start,
+        });
+    }
+
+    Err(Box::new(ConfigError::NotFound("cache_file".into())))
+}
+
 #[tokio::main]
 async fn main() {
     env_logger::init();
-    let config = CacherConfig::new("config.json").unwrap();
+    let config = get_config().unwrap();
     let cache_path = config.cache_file;
     let maps = Arc::new(RwLock::new(MapList::default()));
 

@@ -2,3 +2,8 @@ services:
   api:
     ports:
       - 6003:5000
+    volumes:
+      - ./app:/app
+
+volumes:
+  app:
