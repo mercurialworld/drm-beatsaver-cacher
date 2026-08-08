@@ -25,7 +25,7 @@ use tower_http::services::ServeFile;
 use tower_http::trace::TraceLayer;
 
 async fn serve(app: Router, port: u16) {
-    let addr = SocketAddr::from(([127, 0, 0, 1], port));
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
     let listener = TcpListener::bind(addr).await.unwrap();
     debug!("listening on {}", listener.local_addr().unwrap());
 
