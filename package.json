@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "dependencies": {
     "@types/node": "^26.1.2",
-    "chaeri": "github:mercurialworld/chaeri#semver:^3"
+    "chaeri": "github:mercurialworld/chaeri"
   },
   "devDependencies": {
     "aws-cdk": "^2.1135.0",
