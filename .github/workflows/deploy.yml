@@ -137,6 +137,9 @@ jobs:
         uses: mercurialworld/chaeri-actions/parse-cdk@v1
         with:
           file: outputs.json
+
+      - name: Debug OIDC
+        uses: steve-todorov/oidc-debugger-action@v1
       
       - name: Setup AWS
         uses: mercurialworld/chaeri-actions/setup-aws@v1
