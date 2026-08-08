@@ -7,7 +7,7 @@ export class BeatSaverCacherStack extends cdk.Stack {
     super(scope, id, props);
 
     new CodeDeployApp(this, "CodeDeploy", {
-      githubRepo: getRepoFromEnv(true),
+      githubRepo: getRepoFromEnv({withID: true}),
       codedeployGitHubEnv: "codedeploy",
       onPremInstanceTag: "dreamcatching",
     });
