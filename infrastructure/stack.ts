@@ -9,7 +9,7 @@ export class BeatSaverCacherStack extends cdk.Stack {
     new CodeDeployApp(this, "CodeDeploy", {
       githubRepo: getRepoFromEnv({withID: true}),
       codedeployGitHubEnv: "codedeploy",
-      onPremInstanceTag: "dreamcatching",
+      onPremInstanceTag: "mercurial",
     });
   }
 }
